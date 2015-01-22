@@ -24,6 +24,9 @@ def step_impl(context):
 
     context.req_body = json.dumps(context.req_obj)
 
+
+@given(u'a valid set of request headers')  # noqa
+def step_impl(context):
     context.req_headers = {
         'Content-Type': 'application/json',
         'Content-Length': len(context.req_body),
@@ -67,7 +70,7 @@ def step_impl(context, method):
 
 @then(u'the response status code should be {code:d}')  # noqa
 def step_impl(context, code):
-    assert context.response.status_code == code
+    assert context.response.status_code == code, "expected {}, got {}".format(code, context.response.status_code)
 
 
 @then(u'the response header "{name}" should be "{value}"')  # noqa
@@ -75,14 +78,19 @@ def step_impl(context, name, value):
     assert context.response.headers[name] == value
 
 
+@then(u'the response header "{name}" should contain "{value}"')  # noqa
+def step_impl(context, name, value):
+    assert value in context.response.headers[name]
+
+
 @then(u'the response should contain no body')  # noqa
 def step_impl(context):
-    assert context.response.content is None
+    assert context.response.content == ''
 
 
 @then(u'the response body should contain "{text}"')  # noqa
 def step_impl(context, text):
-    assert text in context.response.text
+    assert text.lower() in context.response.text.lower()
 
 
 @then(u'the response header "{header}" should match "{pattern}"')  # noqa
