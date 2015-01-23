@@ -7,10 +7,8 @@
             [ring.adapter.jetty :as rj]
             [ring.middleware.json :refer [wrap-json-body wrap-json-response]]))
 
-
 (def api-keys #{"13tm31n"})
 (def users (ref []))
-
 
 (defn save-new-user
   "Uses STM to save a new user and return the ID of the new user."
@@ -19,12 +17,10 @@
     (alter users conj user)
     (count @users)))
 
-
 (defn error-response [code message]
   {:status code
    :headers {"Content-Type" "text/plain;charset=UTF-8"}
    :body message})
-
 
 (defn int-string?
     "Accepts a string, returns true if the string can be parsed as an integer, otherwise false."
@@ -32,7 +28,6 @@
     (try
         (boolean (Integer/parseInt s))
         (catch NumberFormatException e false)))
-
 
 (def users-collection
   (resource "collection of users"
@@ -71,12 +66,10 @@
                      "Location" (str "http://localhost:5000/users/" new-user-id)}
            :body user})))))
 
-
 (def a-user
   (resource "a user"
     "/users/:id"
     (GET req "hello")))
-
 
 (defn wrap-authentication [handler]
   (fn [request]
@@ -90,7 +83,6 @@
       :default
       (handler request))))
 
-
 (def ring-handler
   "this is a var so it can be used by lein-ring"
   (-> (routes users-collection
@@ -99,13 +91,11 @@
       wrap-json-response
       wrap-authentication))
 
-
 (defn start []
   (println "starting web server")
   (let [server (rj/run-jetty ring-handler {:port 5000 :join? false})]
     (println "web server listening on port 5000")
     server))
-
 
 (defn -main [& args]
   (start))
