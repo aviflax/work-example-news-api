@@ -56,9 +56,21 @@ def step_impl(context, key):
     context.req_body = json.dumps(context.req_obj)
 
 
+@given(u'the request body key "{key}" is set to "{value}"')  # noqa
+def step_impl(context, key, value):
+    context.req_obj[key] = value
+    context.req_body = json.dumps(context.req_obj)
+
+
 @given(u'the request body key "{key}" is set to ""')  # noqa
 def step_impl(context, key):
     context.req_obj[key] = ""
+    context.req_body = json.dumps(context.req_obj)
+
+
+@given(u'the request body contains an invalid ZIP code')  # noqa
+def step_impl(context):
+    context.req_obj['address']['zip'] = 'foo'
     context.req_body = json.dumps(context.req_obj)
 
 
@@ -95,7 +107,7 @@ def step_impl(context, text):
 
 @then(u'the response header "{header}" should match "{pattern}"')  # noqa
 def step_impl(context, header, pattern):
-    assert re.compile(pattern).match(context.response.headers[header])
+    assert re.compile(pattern).search(context.response.headers[header])
 
 
 @then(u'the response body should be valid JSON')  # noqa
@@ -114,5 +126,9 @@ def step_impl(context):
 
 @then(u'a HEAD request to the URI of the new resource should return a 200')  # noqa
 def step_impl(context):
-    response = requests.head(context.response.headers['Location'])
+    headers = {
+        'Accept': 'application/json',
+        'API-Key': '13tm31n',
+    }
+    response = requests.head(context.response.headers['Location'], headers=headers)
     assert response.status_code == 200
