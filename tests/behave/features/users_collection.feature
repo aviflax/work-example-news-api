@@ -108,7 +108,6 @@ Feature: The resource “a collection of users”
        And the response header "Content-Type" should contain "text/plain"
        And the response body should contain "name"
 
-  @wip
   Scenario: The resource should reject a POST request if the request body contains an empty required key
      Given the request body key "name" is set to ""
       When we send a POST request to the resource
@@ -124,7 +123,6 @@ Feature: The resource “a collection of users”
        And the response header "Content-Type" should contain "text/plain"
        And the response body should contain "name"
        And the response body should contain "are required"
-
 
   Scenario: The resource should reject a POST request if the request body contains an invalid ZIP code
      Given the request body contains an invalid ZIP code
@@ -142,3 +140,9 @@ Feature: The resource “a collection of users”
        And the response body should be valid JSON
        And the response object should be a valid user object
        And a HEAD request to the URI of the new resource should return a 200
+
+  @wip
+  Scenario: Two valid POST requests should result in the creation of a 2 new user resources
+      When we send 2 POST requests to the resource
+      Then the Locations of the new resources should be different
+       And HEAD requests to the Locations of the new resources should return 200s

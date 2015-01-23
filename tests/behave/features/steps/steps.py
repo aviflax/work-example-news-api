@@ -80,6 +80,13 @@ def step_impl(context, method):
     context.response = fn(context.uri, headers=context.req_headers, data=context.req_body)
 
 
+@when(u'we send {num} {method} requests to the resource')  # noqa
+def step_impl(context, num, method):
+    fn = getattr(requests, method.lower())
+    context.responses = [fn(context.uri, headers=context.req_headers, data=context.req_body)
+                         for _ in range(int(num))]
+
+
 @then(u'the response status code should be {code:d}')  # noqa
 def step_impl(context, code):
     assert context.response.status_code == code, "expected {}, got {}".format(code, context.response.status_code)
@@ -125,11 +132,28 @@ def step_impl(context):
     assert re.match('\d{5}', obj['address']['zip'])
 
 
-@then(u'a HEAD request to the URI of the new resource should return a 200')  # noqa
-def step_impl(context):
+def _head(uri):
     headers = {
         'Accept': 'application/json',
         'API-Key': '13tm31n',
     }
-    response = requests.head(context.response.headers['Location'], headers=headers)
+    return requests.head(uri, headers=headers)
+
+
+@then(u'a HEAD request to the URI of the new resource should return a 200')  # noqa
+def step_impl(context):
+    response = _head(context.response.headers['Location'])
     assert response.status_code == 200
+
+
+@then(u'the Locations of the new resources should be different')  # noqa
+def step_impl(context):
+    s = set([r.headers['Location'] for r in context.responses])
+    assert len(s) == len(context.responses)
+
+
+@then(u'HEAD requests to the Locations of the new resources should return 200s')  # noqa
+def step_impl(context):
+    for post_response in context.responses:
+        head_response = _head(post_response.headers['Location'])
+        assert head_response.status_code == 200

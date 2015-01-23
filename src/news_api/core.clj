@@ -9,7 +9,15 @@
 
 
 (def api-keys #{"13tm31n"})
-(def users (atom []))
+(def users (ref []))
+
+
+(defn save-new-user
+  "Uses STM to save a new user and return the ID of the new user."
+  [user]
+  (dosync
+    (alter users conj user)
+    (count @users)))
 
 
 (defn error-response [code message]
@@ -57,12 +65,12 @@
         (error-response 400 "The key 'zip' must be a 5-digit number.")
 
         :default
-        (do
-            (swap! users conj user)
-            {:status 201
-             :headers {"Content-Type" "application/json"
-                       "Location" "http://localhost:5000/users/0"} ;; TODO: return the actual new User ID!
-             :body user})))))
+        (let [new-user-id (save-new-user user)]
+          {:status 201
+           :headers {"Content-Type" "application/json"
+                     "Location" (str "http://localhost:5000/users/" new-user-id)}
+           :body user})))))
+
 
 (def a-user
   (resource "a user"
