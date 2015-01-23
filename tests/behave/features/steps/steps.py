@@ -107,7 +107,7 @@ def step_impl(context, text):
 
 @then(u'the response header "{header}" should match "{pattern}"')  # noqa
 def step_impl(context, header, pattern):
-    assert re.compile(pattern).search(context.response.headers[header])
+    assert re.search(pattern, context.response.headers[header])
 
 
 @then(u'the response body should be valid JSON')  # noqa
@@ -122,6 +122,7 @@ def step_impl(context):
     assert len(obj['name'])
     assert len(obj['phone'])
     assert len(obj['address']['zip'])
+    assert re.match('\d{5}', obj['address']['zip'])
 
 
 @then(u'a HEAD request to the URI of the new resource should return a 200')  # noqa
