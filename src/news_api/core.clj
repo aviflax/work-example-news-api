@@ -3,6 +3,7 @@
             [resourceful :refer [resource]]
             [compojure [core :refer [GET POST routes]]
                        [route :refer [not-found]]]
+            [schema.core :as s]
             [ring.util.response :refer [get-header]]
             [ring.adapter.jetty :as rj]
             [ring.middleware.json :refer [wrap-json-body wrap-json-response]]))
@@ -22,12 +23,14 @@
    :headers {"Content-Type" "text/plain;charset=UTF-8"}
    :body message})
 
-(defn int-string?
-    "Accepts a string, returns true if the string can be parsed as an integer, otherwise false."
-    [s]
-    (try
-        (boolean (Integer/parseInt s))
-        (catch NumberFormatException e false)))
+(def NonEmptyString (s/both s/Str (s/pred seq)))
+
+(def check-user
+  (s/checker
+    {:name NonEmptyString
+     :phone NonEmptyString
+     :address {:zip #"\d{5}"
+             s/Str s/Any}}))
 
 (def users-collection
   (resource "collection of users"
@@ -46,18 +49,9 @@
         (nil? (get-header req "Content-Length"))
         (error-response 411 "The request must include the header Content-Length.")
 
-        (some nil? [name address phone (:zip address)])
-        (error-response 400 "The keys 'name', 'address', and 'phone' are required.")
-
-        (some blank? [name phone (:zip address)])
-        (error-response 400 "The keys 'name', 'address', and 'phone' are required.")
-
-        (empty? address)
-        (error-response 400 "The keys 'name', 'address', and 'phone' are required.")
-
-        (or (not (int-string? (:zip address)))
-            (not (= (.length (:zip address)) 5)))
-        (error-response 400 "The key 'zip' must be a 5-digit number.")
+        (some? (check-user user))
+        (let [error-message (check-user user)]  ; TODO: it’s a little silly to validate twice
+          (error-response 400 (str "Request representation failed validation:\n\n" error-message)))
 
         :default
         (let [new-user-id (save-new-user user)]

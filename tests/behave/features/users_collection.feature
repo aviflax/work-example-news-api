@@ -113,24 +113,24 @@ Feature: The resource “a collection of users”
       When we send a POST request to the resource
       Then the response status code should be 400
        And the response header "Content-Type" should contain "text/plain"
+       And the response body should contain "failed validation"
        And the response body should contain "name"
-       And the response body should contain "are required"
 
   Scenario: The resource should reject a POST request if the request body key 'address' is not an object
      Given the request body key "address" is set to "whatever"
       When we send a POST request to the resource
       Then the response status code should be 400
        And the response header "Content-Type" should contain "text/plain"
-       And the response body should contain "name"
-       And the response body should contain "are required"
+       And the response body should contain "failed validation"
+       And the response body should contain "address"
 
   Scenario: The resource should reject a POST request if the request body contains an invalid ZIP code
      Given the request body contains an invalid ZIP code
       When we send a POST request to the resource
       Then the response status code should be 400
        And the response header "Content-Type" should contain "text/plain"
+       And the response body should contain "failed validation"
        And the response body should contain "zip"
-       And the response body should contain "must be a 5-digit number"
 
   Scenario: A valid POST request should result in the creation of a new user resource
       When we send a POST request to the resource
