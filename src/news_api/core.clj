@@ -4,7 +4,7 @@
             [compojure [core :refer [GET POST routes]]
                        [route :refer [not-found]]]
             [schema.core :as s]
-            [ring.util.response :refer [get-header]]
+            [ring.util.response :refer [created get-header]]
             [ring.adapter.jetty :as rj]
             [ring.middleware.json :refer [wrap-json-body wrap-json-response]]))
 
@@ -55,11 +55,9 @@
           (error-response 400 (str "Request representation failed validation:\n\n" error-message)))
 
         :default
-        (let [new-user-id (save-new-user user)]
-          {:status 201
-           :headers {"Content-Type" "application/json"
-                     "Location" (str "http://localhost:5000/users/" new-user-id)}
-           :body user})))))
+        (let [new-user-id (save-new-user user)
+              new-resource-url (str "http://localhost:5000/users/" new-user-id)]
+          (created new-resource-url user)))))) ; will be converted to a valid JSON response by wrap-json-response
 
 (def a-user
   (resource "a user"
