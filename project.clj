@@ -5,9 +5,12 @@
                  [ring/ring-jetty-adapter "1.3.2"]
                  [ring/ring-json "0.3.1" :exclusions [cheshire]] ; bring in newer Cheshire below
                  [resourceful "0.1.1" :exclusions [ring-core compojure]] ; Resourceful is out of date
-                 [com.twinql.clojure/clj-conneg "1.1.0"]
+                 [clj-http "1.0.1" :exclusions [cheshire]] ; bring in newer Cheshire below
+                 [environ "1.0.0"]
                  [cheshire "5.4.0"]
                  [prismatic/schema "0.3.3"]]
   :main news-api.core
-  :plugins [[lein-ring "0.9.1"]]
+  :env {:forecast-key "3ab7dd06fa02a4b601b772f70f2c283c"}
+  :plugins [[lein-ring "0.9.1"]
+            [lein-environ "1.0.0"]]
   :ring {:handler news-api.core/ring-handler})

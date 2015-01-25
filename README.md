@@ -39,11 +39,14 @@ Then:
     Server: Jetty(7.6.13.v20130916)
 
     {
-      "name" : "Amanda Hugginkiss",
-      "address" : {
-        "zip" : "10025"
+      "name": "Amanda Hugginkiss",
+      "address": {
+        "zip": "10025"
       },
-      "phone" : "867-5309"
+      "phone": "867-5309",
+      "links": {
+        "news": "http://localhost:5000/users/1/news"
+      }
     }
 
 ### Retrieve a user
@@ -56,9 +59,12 @@ Then:
     Server: Jetty(7.6.13.v20130916)
 
     {
-      "name" : "Amanda Hugginkiss",
-      "address" : {
-        "zip" : "10025"
+      "name": "Amanda Hugginkiss",
+      "address": {
+        "zip": "10025"
       },
-      "phone" : "867-5309"
+      "phone": "867-5309",
+      "links": {
+        "news": "http://localhost:5000/users/1/news"
+      }
     }

@@ -130,6 +130,15 @@ def step_impl(context):
     assert len(obj['phone'])
     assert len(obj['address']['zip'])
     assert re.match('\d{5}', obj['address']['zip'])
+    assert 'http' in obj['links']['news']
+    assert 'news' in obj['links']['news']
+
+
+@then(u'the response object should be a valid user news object')  # noqa
+def step_impl(context):
+    obj = json.loads(context.response.text)
+    assert len(obj['weather']['forecast'][0])
+    assert len(obj['news']['headlines'][0])
 
 
 def _head(uri):
@@ -162,6 +171,12 @@ def step_impl(context):
 @then(u'extract the URI for the new “user” resource')  # noqa
 def step_impl(context):
     context.uri = context.response.headers['Location']
+
+
+@then(u'extract the URI for the new “user news” resource')  # noqa
+def step_impl(context):
+    obj = json.loads(context.response.text)
+    context.uri = obj['links']['news']
 
 
 @then(u'create a valid set of request headers to retrieve a resource')  # noqa
