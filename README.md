@@ -1,5 +1,10 @@
 # News API
 
+## Requirements
+
+* Runtime: [a recent JRE (Java Runtime Environment)](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+* Testing: [Python 2.7](https://www.python.org)
+
 ## Install Runtime Dependencies
 
 * [Leiningen](http://leiningen.org)
