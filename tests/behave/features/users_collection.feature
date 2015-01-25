@@ -3,7 +3,7 @@ Feature: The resource “a collection of users”
   Background:
      Given the URI for the resource “a collection of users”
        And a valid JSON representation of a new user
-       And a valid set of request headers
+       And a valid set of request headers to create a new user
 
   Scenario: The resource should support OPTIONS
       When we send a OPTIONS request to the resource
@@ -141,7 +141,6 @@ Feature: The resource “a collection of users”
        And the response object should be a valid user object
        And a HEAD request to the URI of the new resource should return a 200
 
-  @wip
   Scenario: Two valid POST requests should result in the creation of a 2 new user resources
       When we send 2 POST requests to the resource
       Then the Locations of the new resources should be different

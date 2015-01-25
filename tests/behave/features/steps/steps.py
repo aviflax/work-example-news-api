@@ -25,7 +25,7 @@ def step_impl(context):
     context.req_body = json.dumps(context.req_obj)
 
 
-@given(u'a valid set of request headers')  # noqa
+@given(u'a valid set of request headers to create a new user')  # noqa
 def step_impl(context):
     context.req_headers = {
         'Content-Type': 'application/json',
@@ -157,3 +157,16 @@ def step_impl(context):
     for post_response in context.responses:
         head_response = _head(post_response.headers['Location'])
         assert head_response.status_code == 200
+
+
+@then(u'extract the URI for the new “user” resource')  # noqa
+def step_impl(context):
+    context.uri = context.response.headers['Location']
+
+
+@then(u'create a valid set of request headers to retrieve a resource')  # noqa
+def step_impl(context):
+    context.req_headers = {
+        'Accept': 'application/json',
+        'API-Key': '13tm31n',
+    }

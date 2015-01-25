@@ -64,7 +64,24 @@
 (def a-user
   (resource "a user"
     "/users/:id"
-    (GET req "hello")))
+    (GET
+      {headers :headers
+       {:keys [id]} :params
+       :as req}
+      (cond
+        (and (not (blank? (get-header req "Accept")))
+             (not (.startsWith (get-header req "Accept") "application/json")))
+        (error-response 406 "This resource supports only application/json.")
+
+        :default
+        (let [user-id (Integer/parseInt id)
+              user-index (dec user-id) ; because the users vector is 0-indexed
+              user (get @users user-index)]
+          (if user
+              {:status 200
+               :headers {"Content-Type" "application/json;charset=UTF-8"}
+               :body user} ; will be converted to a valid JSON response by wrap-json-response
+              (error-response 404 "No such resource.")))))))
 
 (defn wrap-authentication [handler]
   (fn [request]
@@ -83,7 +100,7 @@
   (-> (routes users-collection
               a-user)
       (wrap-json-body {:keywords? true :bigdecimals? true})
-      wrap-json-response
+      (wrap-json-response {:pretty true})
       wrap-authentication))
 
 (defn start []

@@ -33,9 +33,32 @@ Then:
     $ curl -i -X POST -H API-Key:13tm31n -H Content-Type:application/json -d '{"name":"Amanda Hugginkiss", "address":{"zip":"10025"}, "phone":"867-5309"}' http://localhost:5000/users
     HTTP/1.1 201 Created
     Date: Sun, 25 Jan 2015 16:26:48 GMT
-    Location: http://localhost:5000/users/11
+    Location: http://localhost:5000/users/1
     Content-Type: application/json;charset=ISO-8859-1
-    Content-Length: 73
+    Content-Length: 99
     Server: Jetty(7.6.13.v20130916)
 
-    {"name":"Amanda Hugginkiss","address":{"zip":"10025"},"phone":"867-5309"}
+    {
+      "name" : "Amanda Hugginkiss",
+      "address" : {
+        "zip" : "10025"
+      },
+      "phone" : "867-5309"
+    }
+
+### Retrieve a user
+
+    $ curl -i -X GET -H API-Key:13tm31n -H Accept:application/json http://localhost:5000/users/1
+    HTTP/1.1 200 OK
+    Date: Sun, 25 Jan 2015 17:15:27 GMT
+    Content-Type: application/json;charset=ISO-8859-1
+    Content-Length: 99
+    Server: Jetty(7.6.13.v20130916)
+
+    {
+      "name" : "Amanda Hugginkiss",
+      "address" : {
+        "zip" : "10025"
+      },
+      "phone" : "867-5309"
+    }
