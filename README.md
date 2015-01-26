@@ -3,7 +3,8 @@
 ## Requirements
 
 * Runtime: [a recent JRE (Java Runtime Environment)](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
-* Testing: [Python 2.7](https://www.python.org)
+* Testing: [Python 2.7](https://www.python.org) and [pip](https://pip.pypa.io/en/latest/)
+    * (pip is included in Python 2.7.9)
 
 ## Install Runtime Dependencies
 
