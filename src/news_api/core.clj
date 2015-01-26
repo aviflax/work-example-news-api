@@ -6,7 +6,7 @@
             [schema.core :as s]
             [environ.core :refer [env]]
             [clj-http.client :as client]
-            [ring.util.response :refer [created get-header]]
+            [ring.util.response :refer [charset content-type created get-header]]
             [ring.adapter.jetty :as rj]
             [ring.middleware.json :refer [wrap-json-body wrap-json-response]]))
 
@@ -65,7 +65,9 @@
         (let [new-user-id (save-new-user user)
               new-resource-url (str "http://localhost:5000/users/" new-user-id)
               user-with-links (add-links-to-user user new-user-id)]
-          (created new-resource-url user-with-links))))))
+          (-> (created new-resource-url user-with-links)
+              (content-type "application/json")
+              (charset "UTF-8")))))))
 
 (def a-user
   (resource "a user"

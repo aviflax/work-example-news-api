@@ -34,7 +34,7 @@ Then:
     HTTP/1.1 201 Created
     Date: Sun, 25 Jan 2015 16:26:48 GMT
     Location: http://localhost:5000/users/1
-    Content-Type: application/json;charset=ISO-8859-1
+    Content-Type: application/json;charset=UTF-8
     Content-Length: 99
     Server: Jetty(7.6.13.v20130916)
 
@@ -54,7 +54,7 @@ Then:
     $ curl -i -X GET -H API-Key:13tm31n -H Accept:application/json http://localhost:5000/users/1
     HTTP/1.1 200 OK
     Date: Sun, 25 Jan 2015 17:15:27 GMT
-    Content-Type: application/json;charset=ISO-8859-1
+    Content-Type: application/json;charset=UTF-8
     Content-Length: 99
     Server: Jetty(7.6.13.v20130916)
 
