@@ -137,7 +137,7 @@ def step_impl(context):
 @then(u'the response object should be a valid user news object')  # noqa
 def step_impl(context):
     obj = json.loads(context.response.text)
-    assert len(obj['weather']['forecast'][0])
+    assert len(obj['weather']['forecast'].keys())
     assert len(obj['news']['headlines'][0])
 
 
