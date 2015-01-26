@@ -120,12 +120,12 @@ def step_impl(context, header, pattern):
 @then(u'the response body should be valid JSON')  # noqa
 def step_impl(context):
     # this will raise an exception if the response text is not valid JSON
-    json.loads(context.response.text)
+    context.response_obj = json.loads(context.response.text)
 
 
 @then(u'the response object should be a valid user object')  # noqa
 def step_impl(context):
-    obj = json.loads(context.response.text)
+    obj = context.response_obj  # shorter
     assert len(obj['name'])
     assert len(obj['phone'])
     assert len(obj['address']['zip'])
@@ -184,4 +184,20 @@ def step_impl(context):
     context.req_headers = {
         'Accept': 'application/json',
         'API-Key': '13tm31n',
+    }
+
+
+@then(u'the response body should be valid XML')  # noqa
+def step_impl(context):
+    import xml.etree.ElementTree as etree
+    root = etree.fromstring(context.response.text)
+    context.response_obj = {
+        'name': root.find('name').text,
+        'phone': root.find('phone').text,
+        'address': {
+            'zip': root.find('address').find('zip').text
+        },
+        'links': {
+            'news': root.find('links').find('news').text
+        }
     }

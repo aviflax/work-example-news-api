@@ -66,9 +66,17 @@ Feature: The resource “a user”
        And the response header "Content-Type" should contain "text/plain"
        And the response body should contain "supports only application/json"
 
-  Scenario: The resource should response to a valid GET request with a success response
+  Scenario: The resource should respond to a valid JSON GET request with a success response
       When we send a GET request to the resource
       Then the response status code should be 200
        And the response header "Content-Type" should contain "application/json"
        And the response body should be valid JSON
+       And the response object should be a valid user object
+
+  Scenario: The resource should respond to a valid XML GET request with a success response
+      Given the request header "Accept" is set to "application/xml"
+      When we send a GET request to the resource
+      Then the response status code should be 200
+       And the response header "Content-Type" should contain "application/xml"
+       And the response body should be valid XML
        And the response object should be a valid user object

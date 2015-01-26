@@ -69,6 +69,17 @@ Then:
       }
     }
 
+### Retrieve a user as XML
+
+    $ curl -i -H API-Key:13tm31n -H Accept:application/xml http://localhost:5000/users/1
+    HTTP/1.1 200 OK
+    Date: Mon, 26 Jan 2015 18:14:36 GMT
+    Content-Type: application/xml;charset=UTF-8
+    Content-Length: 201
+    Server: Jetty(7.6.13.v20130916)
+
+    <?xml version="1.0" encoding="UTF-8"?><user><name>Amanda Hugginkiss</name><phone>867-5309</phone><address><zip>10025</zip></address><links><news>http://localhost:5000/users/1/news</news></links></user>
+
 ### Retrieve the news for a user
 
     $ curl -i -X GET -H API-Key:13tm31n -H Accept:application/json http://localhost:5000/users/1/news

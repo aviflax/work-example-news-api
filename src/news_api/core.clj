@@ -1,12 +1,14 @@
 (ns news-api.core
-  (:require [clojure.string :refer [blank?]]
+  (:require [clojure [string :refer [blank?]]
+                     [zip :as zip]]
+            [clojure.core.cache :as cache]
             [resourceful :refer [resource]]
             [compojure [core :refer [GET POST routes]]
                        [route :refer [not-found]]]
             [schema.core :as s]
             [environ.core :refer [env]]
             [clj-http.client :as client]
-            [clojure.core.cache :as cache]
+            [clojure.data.xml :refer [element] :as xml]
             [ring.util.response :refer [charset content-type created get-header]]
             [ring.adapter.jetty :as rj]
             [ring.middleware.json :refer [wrap-json-body wrap-json-response]]))
@@ -71,6 +73,15 @@
               (content-type "application/json")
               (charset "UTF-8")))))))
 
+(defn user-to-xml [user]
+  (element :user {}
+    (element :name {} (:name user))
+    (element :phone {} (:phone user))
+    (element :address {}
+      (element :zip {} (get-in user [:address :zip])))
+    (element :links {}
+      (element :news {} (get-in user [:links :news])))))
+
 (def a-user
   (resource "a user"
     "/users/:id"
@@ -78,21 +89,28 @@
       {headers :headers
        {:keys [id]} :params
        :as req}
-      (cond
-        (and (not (blank? (get-header req "Accept")))
-             (not (.startsWith (get-header req "Accept") "application/json")))
-        (error-response 406 "This resource supports only application/json.")
+      (let [user-id (Integer/parseInt id) ; TODO: return a 404 if this fails
+            user-index (dec user-id) ; because the users vector is 0-indexed
+            user (get @users user-index)
+            user-with-links (add-links-to-user user user-id)]
+        (cond
+          (nil? user)
+          (error-response 404 "No such resource.")
 
-        :default
-        (let [user-id (Integer/parseInt id) ; TODO: return a 404 if this fails
-              user-index (dec user-id) ; because the users vector is 0-indexed
-              user (get @users user-index)
-              user-with-links (add-links-to-user user user-id)]
-          (if user
-              {:status 200
-               :headers {"Content-Type" "application/json;charset=UTF-8"}
-               :body user-with-links}
-              (error-response 404 "No such resource.")))))))
+          (and (not (blank? (get-header req "Accept")))
+               (not (.startsWith (get-header req "Accept") "application/json"))
+               (not (.startsWith (get-header req "Accept") "application/xml")))
+          (error-response 406 "This resource supports only application/json or application/xml.")
+
+          (.startsWith (get-header req "Accept") "application/xml")
+          {:status 200
+           :headers {"Content-Type" "application/xml;charset=UTF-8"}
+           :body (xml/emit-str (user-to-xml user-with-links))}
+
+          :default
+          {:status 200
+           :headers {"Content-Type" "application/json;charset=UTF-8"}
+           :body user-with-links})))))
 
 (defn get-coords [zip]
   (let [uri (str "http://maps.googleapis.com/maps/api/geocode/json?address=" zip)
