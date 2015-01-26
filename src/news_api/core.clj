@@ -49,14 +49,12 @@
   (resource "collection of users"
     "/users"
     (POST
-      {headers :headers
-       {:keys [name address phone] :as user} :body
-       :as req}
+      {user :body :as req}
       (cond
         (nil? (get-header req "Content-Type"))
         (error-response 400 "The request must include the header Content-Type.")
 
-        (not (.startsWith (get-header req "Content-Type") "application/json"))
+        (not (.contains (get-header req "Content-Type") "application/json"))
         (error-response 415 "The request representation must be of type application/json.")
 
         (nil? (get-header req "Content-Length"))
@@ -87,20 +85,23 @@
   (resource "a user"
     "/users/:id"
     (GET
-      {headers :headers
-       {:keys [id]} :params
+      {{:keys [id]} :params
        :as req}
       (let [user-id (Integer/parseInt id) ; TODO: return a 404 if this fails
             user-index (dec user-id) ; because the users vector is 0-indexed
             user (get @users user-index)
-            user-with-links (add-links-to-user user user-id)]
+            user-with-links (add-links-to-user user user-id)
+            accept (get-header req "Accept")]
         (cond
           (nil? user)
           (error-response 404 "No such resource.")
 
-          (and (not (blank? (get-header req "Accept")))
-               (not (.startsWith (get-header req "Accept") "application/json"))
-               (not (.startsWith (get-header req "Accept") "application/xml")))
+          (and (not (nil? accept))
+               (not (blank? accept))
+               (not (.contains accept "*/*"))
+               (not (.contains accept "application/*"))
+               (not (.contains accept "application/json"))
+               (not (.contains accept "application/xml")))
           (error-response 406 "This resource supports only application/json or application/xml.")
 
           (.startsWith (get-header req "Accept") "application/xml")
@@ -153,19 +154,22 @@
   (resource "the news for a user"
     "/users/:id/news"
     (GET
-      {headers :headers
-       {:keys [id]} :params
+      {{:keys [id]} :params
        :as req}
       (let [user-id (Integer/parseInt id) ; TODO: return a 404 if this fails
             user-index (dec user-id) ; because the users vector is 0-indexed
             user (get @users user-index)
-            zip (get-in user [:address :zip])]
+            zip (get-in user [:address :zip])
+            accept (get-header req "Accept")]
         (cond
           (nil? user)
           (error-response 404 "No such resource.")
 
-          (and (not (blank? (get-header req "Accept")))
-               (not (.startsWith (get-header req "Accept") "application/json")))
+          (and (not (nil? accept))
+               (not (blank? accept))
+               (not (.contains accept "*/*"))
+               (not (.contains accept "application/*"))
+               (not (.contains accept "application/json")))
           (error-response 406 "This resource supports only application/json.")
 
           :default
