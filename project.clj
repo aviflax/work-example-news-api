@@ -12,7 +12,8 @@
                  [org.clojure/data.xml "0.0.8"]
                  [prismatic/schema "0.3.3"]]
   :main news-api.core
-  :env {:forecast-key "3ab7dd06fa02a4b601b772f70f2c283c"}
+  :env {:forecast-key "3ab7dd06fa02a4b601b772f70f2c283c"
+        :usatoday-articles-key "cnwskcyvzks6zzngmp3wn96u"}
   :plugins [[lein-ring "0.9.1"]
             [lein-environ "1.0.0"]]
   :ring {:handler news-api.core/ring-handler})

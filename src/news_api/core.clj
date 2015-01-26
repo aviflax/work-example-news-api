@@ -16,6 +16,7 @@
 (def api-keys #{"13tm31n"})
 (def users (ref []))
 (def weather-cache (atom (cache/ttl-cache-factory {} :ttl 300000)))
+(def news-cache (atom (cache/ttl-cache-factory {} :ttl 300000)))
 
 (defn save-new-user
   "Uses STM to save a new user and return the ID of the new user without
@@ -134,12 +135,19 @@
   (cache/lookup @weather-cache zip))
 
 (defn get-headlines [zip]
-  ;; TODO: These are supposed to be live and dynamic and specifically relevant to the
-  ;; provided zipcode
-  ["Chinese Officials Vow To Fix Nation’s Crumbling Reeducation System"
-   "Medical Breakthrough Provides Elderly Woman With 2 Extra Years Of Inconveniencing Family"
-   "Nation’s Historians Warn The Past Is Expanding At Alarming Rate"
-   "Man With Serious Mental Illness Committed To City Bus"])
+  ;; TODO: These are specifically relevant to the provided zipcode but so far I haven’t found an
+  ;; API that provides such data
+  (let [api-key (env :usatoday-articles-key)
+        uri (str "http://api.usatoday.com/open/articles/topnews?encoding=json&api_key=" api-key)
+        response (client/get uri {:accept :json, :as :json-strict})
+        stories (get-in response [:body :stories])]
+    (map :description stories)))
+
+(defn get-headlines-cached [zip]
+  (if (cache/has? @news-cache :headlines)
+      (swap! news-cache #(cache/hit % :headlines))
+      (swap! news-cache #(cache/miss % :headlines (get-headlines zip))))
+  (cache/lookup @news-cache :headlines))
 
 (def user-news
   (resource "the news for a user"
@@ -164,7 +172,7 @@
           {:status 200
            :headers {"Content-Type" "application/json;charset=UTF-8"}
            :body {:weather {:forecast (get-forecast-cached zip)}
-                  :news {:headlines (get-headlines zip)}}})))))
+                  :news {:headlines (get-headlines-cached zip)}}})))))
 
 (defn wrap-authentication [handler]
   (fn [request]
