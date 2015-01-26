@@ -6,12 +6,14 @@
             [schema.core :as s]
             [environ.core :refer [env]]
             [clj-http.client :as client]
+            [clojure.core.cache :as cache]
             [ring.util.response :refer [charset content-type created get-header]]
             [ring.adapter.jetty :as rj]
             [ring.middleware.json :refer [wrap-json-body wrap-json-response]]))
 
 (def api-keys #{"13tm31n"})
 (def users (ref []))
+(def weather-cache (atom (cache/ttl-cache-factory {} :ttl 300000)))
 
 (defn save-new-user
   "Uses STM to save a new user and return the ID of the new user without
@@ -107,6 +109,12 @@
         response (client/get uri {:accept :json, :as :json-strict})]
     (:body response)))
 
+(defn get-forecast-cached [zip]
+  (if (cache/has? @weather-cache zip)
+      (swap! weather-cache #(cache/hit % zip))
+      (swap! weather-cache #(cache/miss % zip (get-forecast zip))))
+  (cache/lookup @weather-cache zip))
+
 (defn get-headlines [zip]
   ;; TODO: These are supposed to be live and dynamic and specifically relevant to the
   ;; provided zipcode
@@ -137,7 +145,7 @@
           :default
           {:status 200
            :headers {"Content-Type" "application/json;charset=UTF-8"}
-           :body {:weather {:forecast (get-forecast zip)}
+           :body {:weather {:forecast (get-forecast-cached zip)}
                   :news {:headlines (get-headlines zip)}}})))))
 
 (defn wrap-authentication [handler]

@@ -8,6 +8,7 @@
                  [clj-http "1.0.1" :exclusions [cheshire]] ; bring in newer Cheshire below
                  [environ "1.0.0"]
                  [cheshire "5.4.0"]
+                 [org.clojure/core.cache "0.6.4"]
                  [prismatic/schema "0.3.3"]]
   :main news-api.core
   :env {:forecast-key "3ab7dd06fa02a4b601b772f70f2c283c"}
